@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Ksatria Pancasila - Kelas 6 SD/MI Semester 1</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Fredoka', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            user-select: none;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+        .glass-card-gold {
+            background: rgba(45, 30, 10, 0.92);
+            backdrop-filter: blur(14px);
+            border: 2px solid #f59e0b;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+        }
+        .btn-game {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-game:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5);
+        }
+        .btn-game:active {
+            transform: translateY(1px) scale(0.98);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 8px;
+        }
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float {
+            animation: float-slow 4s ease-in-out infinite;
+        }
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 12s linear infinite;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #modal-certificate, #modal-certificate * {
+                visibility: visible;
+            }
+            #modal-certificate {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen custom-scrollbar">
+
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-700/50 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="showScreen('map-screen')">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-slate-900 shadow-lg text-xl font-black">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400">
+                        KSATRIA PANCASILA
+                    </h1>
+                    <p class="text-[11px] text-amber-200/80 font-medium">50 Soal Edukasi Kurikulum Merdeka - Kelas 6 Semester 1</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3 text-xs sm:text-sm">
+                <div class="bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full flex items-center space-x-2">
+                    <i class="fa-solid fa-crown text-amber-400"></i>
+                    <span class="font-bold text-slate-200">Lv. <span id="player-level">1</span></span>
+                </div>
+
+                <div class="hidden sm:flex flex-col w-28 bg-slate-800/80 border border-slate-700 p-1.5 rounded-full">
+                    <div class="flex justify-between text-[10px] px-1 font-bold text-amber-300">
+                        <span>XP</span>
+                        <span id="xp-text">0/100</span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden mt-0.5">
+                        <div id="xp-bar" class="bg-gradient-to-r from-amber-500 to-yellow-300 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-950/60 border border-amber-500/40 px-3 py-1.5 rounded-full flex items-center space-x-2">
+                    <i class="fa-solid fa-star text-amber-400 animate-spin-slow"></i>
+                    <span id="player-stars" class="font-extrabold text-amber-300">0</span>
+                </div>
+
+                <button id="btn-audio" onclick="toggleAudio()" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                    <i id="audio-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col justify-center">
+
+        <!-- SCREEN 1: WELCOME SCREEN & REGISTRATION -->
+        <section id="welcome-screen" class="flex flex-col items-center justify-center text-center py-6 space-y-6">
+            <div class="relative animate-float">
+                <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 p-1 shadow-2xl shadow-amber-500/30 flex items-center justify-center">
+                    <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-5xl text-amber-400">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 bg-gradient-to-r from-indigo-500 to-purple-600 px-3 py-1 rounded-full text-[10px] font-black shadow-lg">
+                    50 SOAL LENGKAP
+                </div>
+            </div>
+
+            <div class="max-w-2xl space-y-2">
+                <h2 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-400 drop-shadow-md">
+                    PETUALANGAN KSATRIA PANCASILA
+                </h2>
+                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed px-4">
+                    Jadilah Penjaga Moral Nusantara! Selesaikan <span class="text-amber-300 font-bold">50 Tantangan Soal Interaktif</span> dari Bab 1, Bab 2, dan Bab 3 Kurikulum Merdeka Pendidikan Pancasila Kelas 6 SD/MI Semester 1!
+                </p>
+            </div>
+
+            <!-- Player & School Input Form -->
+            <div class="glass-card p-6 rounded-2xl w-full max-w-md space-y-4 border border-amber-500/20 text-left">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-amber-300 uppercase tracking-wider">Nama Siswa / Ksatria:</label>
+                    <input type="text" id="player-name-input" placeholder="Masukkan Nama Lengkap Siswa..." 
+                           class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-white font-semibold focus:outline-none focus:border-amber-400 transition text-sm">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-amber-300 uppercase tracking-wider">Nama Sekolah / Madrasah:</label>
+                    <input type="text" id="school-name-input" placeholder="Contoh: SD Negeri 01 Nusantara..." 
+                           class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-white font-semibold focus:outline-none focus:border-amber-400 transition text-sm">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-amber-300 uppercase tracking-wider">Pilih Avatar Ksatria:</label>
+                    <div class="grid grid-cols-4 gap-2 pt-1" id="avatar-selector">
+                        <button onclick="selectAvatar('boy1', this)" class="avatar-btn p-2 rounded-xl bg-slate-800 border-2 border-amber-400 flex flex-col items-center">
+                            <i class="fa-solid fa-user-ninja text-2xl text-amber-400"></i>
+                            <span class="text-[10px] mt-1 font-bold">Garuda</span>
+                        </button>
+                        <button onclick="selectAvatar('girl1', this)" class="avatar-btn p-2 rounded-xl bg-slate-800 border-2 border-transparent flex flex-col items-center hover:border-slate-600">
+                            <i class="fa-solid fa-user-astronaut text-2xl text-purple-400"></i>
+                            <span class="text-[10px] mt-1 font-bold">Satria</span>
+                        </button>
+                        <button onclick="selectAvatar('boy2', this)" class="avatar-btn p-2 rounded-xl bg-slate-800 border-2 border-transparent flex flex-col items-center hover:border-slate-600">
+                            <i class="fa-solid fa-user-shield text-2xl text-emerald-400"></i>
+                            <span class="text-[10px] mt-1 font-bold">Bumi</span>
+                        </button>
+                        <button onclick="selectAvatar('girl2', this)" class="avatar-btn p-2 rounded-xl bg-slate-800 border-2 border-transparent flex flex-col items-center hover:border-slate-600">
+                            <i class="fa-solid fa-graduation-cap text-2xl text-cyan-400"></i>
+                            <span class="text-[10px] mt-1 font-bold">Cendekia</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="btn-game w-full py-3.5 rounded-xl font-black text-base bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 shadow-lg shadow-amber-500/20 hover:brightness-110 flex items-center justify-center space-x-2">
+                    <span>MULAI PETUALANGAN</span>
+                    <i class="fa-solid fa-circle-play"></i>
+                </button>
+                
+                <p class="text-[11px] text-center text-slate-400 font-medium pt-1">
+                    Game Builder: <span class="text-amber-300 font-bold">Giga Innovation (081329200985)</span>
+                </p>
+            </div>
+        </section>
+
+        <section id="map-screen" class="hidden space-y-6">
+            <div class="glass-card p-4 rounded-2xl flex flex-wrap justify-between items-center gap-3">
+                <div>
+                    <h2 class="text-xl font-bold text-amber-300" id="welcome-player-text">Selamat Datang, Ksatria!</h2>
+                    <p class="text-xs text-slate-300" id="school-player-text">SD Negeri 01 Nusantara</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="showRangkumanModal()" class="px-3 py-2 rounded-xl bg-indigo-600/80 hover:bg-indigo-500 text-xs font-bold flex items-center space-x-1.5 border border-indigo-400/30">
+                        <i class="fa-solid fa-book-bookmark text-amber-300"></i>
+                        <span>Kitab Rangkuman</span>
+                    </button>
+                    <button onclick="showCertificateModal()" class="px-3 py-2 rounded-xl bg-amber-600/80 hover:bg-amber-500 text-xs font-bold flex items-center space-x-1.5 border border-amber-400/30">
+                        <i class="fa-solid fa-award text-yellow-200"></i>
+                        <span>Sertifikat Pahlawan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chapter Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- BAB 1 CARD -->
+                <div class="glass-card rounded-2xl overflow-hidden border border-slate-700/80 flex flex-col justify-between hover:border-amber-400/50 transition">
+                    <div class="p-5 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/30">BAB 1 (12 SOAL)</span>
+                            <span id="star-bab1" class="text-xs font-bold text-amber-400 flex items-center space-x-1">
+                                <i class="fa-solid fa-star"></i> <span>0/3</span>
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-black text-white">Belajar Pancasila dengan Menyenangkan</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            A. Hubungan Nilai-Nilai Pancasila dalam Praktik Hidup Sehari-hari<br>
+                            B. Belajar Mengamalkan Pancasila
+                        </p>
+                    </div>
+                    <div class="p-4 bg-slate-900/60 border-t border-slate-800 space-y-2">
+                        <button onclick="startChapter(1, 'materi')" class="btn-game w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-amber-300 border border-amber-500/30 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>Ringkasan Materi Bab 1</span>
+                        </button>
+                        <button onclick="startChapter(1, 'game')" class="btn-game w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs flex items-center justify-center space-x-2 shadow-lg">
+                            <i class="fa-solid fa-gamepad"></i>
+                            <span>Kuis Bab 1 (Soal 1-12)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BAB 2 CARD -->
+                <div class="glass-card rounded-2xl overflow-hidden border border-slate-700/80 flex flex-col justify-between hover:border-indigo-400/50 transition">
+                    <div class="p-5 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 font-bold text-xs border border-indigo-500/30">BAB 2 (12 SOAL)</span>
+                            <span id="star-bab2" class="text-xs font-bold text-amber-400 flex items-center space-x-1">
+                                <i class="fa-solid fa-star"></i> <span>0/3</span>
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-black text-white">Mengamalkan Pancasila Kebahagiaan Bersama</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            A. Pancasila sebagai Pandangan Hidup Bangsa<br>
+                            B. Mengajak Teman Mengamalkan Pancasila
+                        </p>
+                    </div>
+                    <div class="p-4 bg-slate-900/60 border-t border-slate-800 space-y-2">
+                        <button onclick="startChapter(2, 'materi')" class="btn-game w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-indigo-300 border border-indigo-500/30 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>Ringkasan Materi Bab 2</span>
+                        </button>
+                        <button onclick="startChapter(2, 'game')" class="btn-game w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-extrabold text-xs flex items-center justify-center space-x-2 shadow-lg">
+                            <i class="fa-solid fa-gamepad"></i>
+                            <span>Kuis Bab 2 (Soal 13-24)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BAB 3 CARD -->
+                <div class="glass-card rounded-2xl overflow-hidden border border-slate-700/80 flex flex-col justify-between hover:border-emerald-400/50 transition">
+                    <div class="p-5 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-500/30">BAB 3 (16 SOAL)</span>
+                            <span id="star-bab3" class="text-xs font-bold text-amber-400 flex items-center space-x-1">
+                                <i class="fa-solid fa-star"></i> <span>0/3</span>
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-black text-white">Norma, Hak, dan Kewajiban Anak</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            A. Mengenal Norma-Norma dalam Masyarakat<br>
+                            B. Memahami Hak Anak & C. Memahami Kewajiban
+                        </p>
+                    </div>
+                    <div class="p-4 bg-slate-900/60 border-t border-slate-800 space-y-2">
+                        <button onclick="startChapter(3, 'materi')" class="btn-game w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-emerald-300 border border-emerald-500/30 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>Ringkasan Materi Bab 3</span>
+                        </button>
+                        <button onclick="startChapter(3, 'game')" class="btn-game w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-xs flex items-center justify-center space-x-2 shadow-lg">
+                            <i class="fa-solid fa-gamepad"></i>
+                            <span>Kuis Bab 3 (Soal 25-40)</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Grand Final Boss Card -->
+            <div class="glass-card-gold p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-3xl text-amber-400 shrink-0">
+                        <i class="fa-solid fa-dragon"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-black text-amber-400 tracking-wider uppercase">SUMATIF TENGAH SEMESTER (10 SOAL CASE STUDY)</span>
+                        <h3 class="text-xl font-black text-white">ASESMEN SUMATIF GABUNGAN (FINAL BOSS)</h3>
+                        <p class="text-xs text-slate-300 max-w-xl">Uji pemahaman gabungan Bab 1, Bab 2, dan Bab 3 dalam Soal 41 sampai 50 untuk meraih Sertifikat Ksatria Pancasila!</p>
+                    </div>
+                </div>
+                <button onclick="startFinalBoss()" class="btn-game px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs shadow-xl shrink-0 flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-cat"></i>
+                    <span>TANTANG FINAL BOSS (Soal 41-50)</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="materi-screen" class="hidden space-y-4">
+            <div class="flex justify-between items-center">
+                <button onclick="showScreen('map-screen')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 flex items-center space-x-1 border border-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Kembali ke Peta</span>
+                </button>
+                <span id="materi-chapter-tag" class="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    BAB 1
+                </span>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <div class="border-b border-slate-700/60 pb-4">
+                    <h2 id="materi-title" class="text-2xl font-black text-amber-300">Judul Materi</h2>
+                    <p id="materi-subtitle" class="text-xs text-slate-300 mt-1">Ringkasan Materi Pendidikan Pancasila Kelas 6</p>
+                </div>
+
+                <div id="materi-body" class="space-y-4 text-slate-200 text-sm leading-relaxed">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button id="btn-materi-to-quiz" onclick="" class="btn-game px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs flex items-center space-x-2 shadow-lg">
+                    <span>Mulai Kuis Bab Ini</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="game-screen" class="hidden space-y-4">
+            <div class="glass-card p-4 rounded-2xl flex justify-between items-center">
+                <button onclick="showScreen('map-screen')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 flex items-center space-x-1 border border-slate-700">
+                    <i class="fa-solid fa-xmark"></i>
+                    <span>Keluar</span>
+                </button>
+
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs font-bold text-slate-300">Soal <span id="current-question-num">1</span>/<span id="total-questions-num">12</span></span>
+                    <div class="w-28 sm:w-36 bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-700">
+                        <div id="quiz-progress-bar" class="bg-gradient-to-r from-amber-400 to-yellow-300 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30 text-amber-300 font-black text-xs flex items-center space-x-1">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span id="quiz-score">Skor: 0</span>
+                </div>
+            </div>
+
+            <!-- Quiz Card -->
+            <div class="glass-card p-6 rounded-2xl space-y-6 relative overflow-hidden">
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span id="question-category-badge" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                            SOAL 1
+                        </span>
+                        <span id="question-sila-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            BAB 1
+                        </span>
+                    </div>
+                    <h3 id="question-text" class="text-base sm:text-lg font-bold text-white leading-snug">
+                        Memuat Pertanyaan...
+                    </h3>
+                </div>
+
+                <!-- Multiple Choice Options -->
+                <div id="options-container" class="grid grid-cols-1 gap-3 pt-2">
+                    <!-- Injected dynamically -->
+                </div>
+
+                <!-- Explanation Box & Correct Answer Notification -->
+                <div id="explanation-box" class="hidden p-4 rounded-xl bg-slate-900/95 border border-slate-700 space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <i id="explanation-icon" class="fa-solid fa-circle-info text-amber-400"></i>
+                        <h4 id="explanation-title" class="font-bold text-xs uppercase tracking-wider text-amber-300">Penjelasan Pembelajaran</h4>
+                    </div>
+                    <div id="correct-answer-banner" class="hidden p-2.5 rounded-lg bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-xs font-bold flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+                        <span id="correct-answer-text">Jawaban Benar: -</span>
+                    </div>
+                    <p id="explanation-text" class="text-xs text-slate-300 leading-relaxed">
+                        ...
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button id="btn-next-question" onclick="nextQuestion()" disabled class="btn-game px-6 py-3 rounded-xl bg-slate-800 text-slate-500 font-extrabold text-xs flex items-center space-x-2 border border-slate-700 cursor-not-allowed">
+                    <span>Soal Berikutnya</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="result-screen" class="hidden space-y-6 text-center py-6">
+            <div class="glass-card-gold p-8 rounded-2xl max-w-lg mx-auto space-y-6">
+                <div class="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400 mx-auto flex items-center justify-center text-3xl text-amber-300 shadow-xl">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+
+                <div class="space-y-1">
+                    <h2 class="text-2xl font-black text-amber-300">MISI SELESAI!</h2>
+                    <p id="result-subtitle" class="text-xs text-slate-300">Kamu telah membuktikan pemahaman materi Ksatria!</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 bg-slate-900/80 p-4 rounded-xl border border-amber-500/20 text-xs">
+                    <div>
+                        <div class="text-slate-400 text-[11px]">Skor Akhir</div>
+                        <div id="result-final-score" class="text-lg font-black text-amber-300">100</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400 text-[11px]">Benar</div>
+                        <div id="result-correct-count" class="text-lg font-black text-emerald-400">12/12</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400 text-[11px]">Bintang</div>
+                        <div id="result-stars-earned" class="text-lg font-black text-yellow-300">+3 ⭐</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="showScreen('map-screen')" class="btn-game w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-xs flex items-center justify-center space-x-2 shadow-lg">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <span>KEMBALI KE PETA PETUALANGAN</span>
+                    </button>
+                    <button onclick="showCertificateModal()" class="btn-game w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-xs flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-certificate"></i>
+                        <span>Cetak Sertifikat Ksatria</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="modal-rangkuman" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-3xl w-full rounded-2xl border border-amber-500/30 max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-slate-700/80 flex justify-between items-center bg-slate-900/80">
+                <div class="flex items-center space-x-2 text-amber-300 font-black text-sm">
+                    <i class="fa-solid fa-book-journal-whills text-lg"></i>
+                    <span>KITAB RANGKUMAN PANCASILA KELAS 6 SEMESTER 1</span>
+                </div>
+                <button onclick="closeModal('modal-rangkuman')" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex border-b border-slate-800 bg-slate-900/40 text-xs font-bold">
+                <button onclick="switchRangkumanTab('bab1')" id="tab-btn-bab1" class="flex-1 py-3 border-b-2 border-amber-400 text-amber-300 bg-slate-800/50">Bab 1: Pancasila Menyenangkan</button>
+                <button onclick="switchRangkumanTab('bab2')" id="tab-btn-bab2" class="flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200">Bab 2: Pandangan Hidup</button>
+                <button onclick="switchRangkumanTab('bab3')" id="tab-btn-bab3" class="flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200">Bab 3: Norma, Hak & Kewajiban</button>
+            </div>
+
+            <!-- Scroll Content -->
+            <div id="rangkuman-content-body" class="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-200 custom-scrollbar flex-1">
+                <!-- Dynamically filled by JS -->
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-certificate" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card-gold max-w-2xl w-full rounded-2xl p-6 sm:p-8 space-y-5 text-center border-4 border-amber-400 relative overflow-hidden">
+            <button onclick="closeModal('modal-certificate')" class="no-print absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="space-y-1">
+                <i class="fa-solid fa-award text-4xl text-amber-400"></i>
+                <h2 class="text-xs font-black tracking-widest text-amber-300 uppercase">SERTIFIKAT PENGHARGAAN RESMI</h2>
+                <h3 class="text-2xl font-black text-white">KSATRIA PANCASILA NUSA</h3>
+            </div>
+
+            <p class="text-xs text-slate-300 italic">Diberikan secara penuh rasa bangga kepada Ksatria Teladan:</p>
+
+            <div class="py-3 border-y border-amber-500/30 max-w-lg mx-auto space-y-1">
+                <div id="cert-player-name" class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 uppercase">
+                    NAMA SISWA
+                </div>
+                <div id="cert-school-name" class="text-sm font-bold text-amber-300/90">
+                    SD NEGERI 01 NUSANTARA
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-300 leading-relaxed max-w-lg mx-auto">
+                Telah berhasil menyelesaikan <b>50 Tantangan Soal Pendidikan Pancasila Kelas 6 SD/MI Semester 1</b> meliputi Bab 1 (Nilai-Nilai Pancasila), Bab 2 (Pandangan Hidup & Mengajak Kebaikan), serta Bab 3 (Norma, Hak & Kewajiban Anak).
+            </p>
+
+            <div class="grid grid-cols-2 gap-4 max-w-xs mx-auto text-xs bg-slate-900/80 p-3 rounded-xl border border-amber-500/30">
+                <div>
+                    <span class="text-slate-400">Gelar Hero:</span>
+                    <div id="cert-hero-title" class="font-bold text-amber-300">Pahlawan Utama</div>
+                </div>
+                <div>
+                    <span class="text-slate-400">Total Bintang:</span>
+                    <div id="cert-total-stars" class="font-bold text-yellow-300">0 ⭐</div>
+                </div>
+            </div>
+
+            <!-- Official Builder Footer Credit -->
+            <div class="pt-2 border-t border-slate-700/60 text-[11px] text-slate-400 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <div>Game Builder: <span class="text-amber-300 font-bold">Giga Innovation (081329200985)</span></div>
+                <div>Tanggal: <span id="cert-date" class="font-semibold text-slate-300">2026</span></div>
+            </div>
+
+            <button onclick="window.print()" class="no-print btn-game px-6 py-2.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs space-x-2">
+                <i class="fa-solid fa-print"></i>
+                <span>Cetak / Simpan Sertifikat</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // GAME STATE MANAGEMENT
+        let player = {
+            name: "Ksatria Garuda",
+            school: "SD Negeri 01 Nusantara",
+            avatar: "boy1",
+            level: 1,
+            xp: 0,
+            maxXp: 100,
+            stars: 0,
+            bab1Stars: 0,
+            bab2Stars: 0,
+            bab3Stars: 0,
+            audioEnabled: true
+        };
+
+        let currentQuizData = [];
+        let currentQuestionIdx = 0;
+        let currentScore = 0;
+        let correctAnswersCount = 0;
+        let activeChapter = 1;
+        let isAnswered = false;
+
+        // WEB AUDIO SYNTHESIZER
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!player.audioEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new AudioContext();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(140, now + 0.12);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'fanfare') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.12);
+                    osc.frequency.setValueAtTime(659.25, now + 0.24);
+                    osc.frequency.setValueAtTime(880, now + 0.36);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                }
+            } catch (e) {
+                console.log("Audio API issue", e);
+            }
+        }
+
+        function toggleAudio() {
+            player.audioEnabled = !player.audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            if (player.audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+                playSound('click');
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-red-400';
+            }
+        }
+
+        const MATERIALS = {
+            1: {
+                title: "BAB 1: Belajar Pancasila dengan Menyenangkan",
+                subtitle: "Hubungan Nilai-Nilai Pancasila & Praktik Hidup Sehari-hari",
+                content: `
+                    <div class="space-y-4">
+                        <div class="bg-amber-950/40 border border-amber-500/30 p-4 rounded-xl">
+                            <h4 class="font-bold text-amber-300 text-xs mb-1">A. Hubungan Nilai-Nilai Pancasila dalam Praktik Hidup Sehari-hari</h4>
+                            <ul class="list-disc list-inside space-y-1 text-xs text-slate-200">
+                                <li><b>Sila 1 (Bintang Emas):</b> Ketuhanan Yang Maha Esa - Beribadah, taat norma agama, serta toleransi antarumat beragama.</li>
+                                <li><b>Sila 2 (Rantai Emas):</b> Kemanusiaan yang Adil dan Beradab - Suka menolong, bersikap sopan, menjauhi perundungan (bullying).</li>
+                                <li><b>Sila 3 (Pohon Beringin):</b> Persatuan Indonesia - Cinta tanah air, mengutamakan kerja sama, bangga produk buatan Indonesia.</li>
+                                <li><b>Sila 4 (Kepala Banteng):</b> Kerakyatan yang Dipimpin oleh Hikmat... - Musyawarah mufakat, menghargai perbedaan pendapat.</li>
+                                <li><b>Sila 5 (Padi & Kapas):</b> Keadilan Sosial bagi Seluruh Rakyat... - Bersikap adil, hidup hemat, tidak boros, menghargai karya orang lain.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-indigo-950/40 border border-indigo-500/30 p-4 rounded-xl">
+                            <h4 class="font-bold text-indigo-300 text-xs mb-1">B. Belajar Mengamalkan Pancasila</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Dilaksanakan di 3 lingkungan utama: <b>1) Rumah</b> (membantu orang tua & merapikan tempat tidur), <b>2) Sekolah</b> (piket kelas, taat guru, musyawarah pemilihan ketua kelas), serta <b>3) Masyarakat</b> (kerja bakti desa & menjaga ketertiban).
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            2: {
+                title: "BAB 2: Mengamalkan Pancasila untuk Kebahagiaan Bersama",
+                subtitle: "Pandangan Hidup Bangsa & Mengajak Teman Beramal Baik",
+                content: `
+                    <div class="space-y-4">
+                        <div class="bg-indigo-950/40 border border-indigo-500/30 p-4 rounded-xl">
+                            <h4 class="font-bold text-indigo-300 text-xs mb-1">A. Pancasila sebagai Pandangan Hidup Bangsa</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Pandangan hidup adalah <b>pedoman, petunjuk, dan penuntun</b> dalam berpikir dan bertindak agar masyarakat hidup rukun, aman, damai, dan penuh kebahagiaan bersama.
+                            </p>
+                        </div>
+                        <div class="bg-amber-950/40 border border-amber-500/30 p-4 rounded-xl">
+                            <h4 class="font-bold text-amber-300 text-xs mb-1">B. Mengajak Teman Mengamalkan Pancasila</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Dilakukan dengan cara <b>memberikan contoh keteladanan yang baik</b>, berbicara dengan kata-kata santun tanpa membentak, serta saling merangkul dalam kebaikan.
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            3: {
+                title: "BAB 3: Mengenal Norma, Hak, dan Kewajiban",
+                subtitle: "Norma Masyarakat, Hak Anak, & Kewajiban Anak",
+                content: `
+                    <div class="space-y-4">
+                        <div class="bg-emerald-950/40 border border-emerald-500/30 p-4 rounded-xl">
+                            <h4 class="font-bold text-emerald-300 text-xs mb-1">A. 4 Norma Utama Masyarakat</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                                <div class="bg-slate-900/80 p-2 rounded border border-slate-700"><b>1. Agama:</b> Wahyu Tuhan YME (Sanksi: Dosa/Akhirat).</div>
+                                <div class="bg-slate-900/80 p-2 rounded border border-slate-700"><b>2. Kesusilaan:</b> Bisikan Hati Nurani (Sanksi: Rasa Bersalah/Malu).</div>
+                                <div class="bg-slate-900/80 p-2 rounded border border-slate-700"><b>3. Kesopanan:</b> Pergaulan & Adat (Sanksi: Ditegur/Dikucilkan).</div>
+                                <div class="bg-slate-900/80 p-2 rounded border border-slate-700"><b>4. Hukum:</b> Aturan Negara (Sanksi: Denda/Penjara).</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div class="bg-sky-950/40 border border-sky-500/30 p-3 rounded-xl">
+                                <h4 class="font-bold text-sky-300 mb-1">B. Hak Anak</h4>
+                                <p class="text-slate-300">Sesuatu yang mutlak diterima: Kasih sayang, pendidikan, kesehatan, tempat tinggal, dan bermain aman.</p>
+                            </div>
+                            <div class="bg-purple-950/40 border border-purple-500/30 p-3 rounded-xl">
+                                <h4 class="font-bold text-purple-300 mb-1">C. Kewajiban Anak</h4>
+                                <p class="text-slate-300">Sesuatu yang harus dilaksanakan seimbang: Belajar rajin, patuh orang tua/guru, ikut piket, taat norma.</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        const QUESTIONS = {
+            1: [ // BAB 1: SOAL 1 - 12
+                {
+                    number: 1,
+                    question: "1. Lambang Sila Pertama Pancasila adalah Bintang Emas. Makna utama dari simbol ini adalah...",
+                    options: [
+                        "Cahaya kerohanian dari Tuhan YME bagi seluruh manusia",
+                        "Kekuatan fisik tentara Indonesia",
+                        "Kekayaan alam minyak bumi",
+                        "Banyaknya pulau di Indonesia"
+                    ],
+                    correct: 0,
+                    explanation: "Bintang Emas bersudut lima melambangkan cahaya kerohanian dari Tuhan YME kepada setiap manusia."
+                },
+                {
+                    number: 2,
+                    question: "2. Menolong teman yang jatuh dari sepeda di lapangan sekolah merupakan bentuk pengamalan Sila ke-...",
+                    options: ["Sila Pertama", "Sila Kedua", "Sila Ketiga", "Sila Keempat"],
+                    correct: 1,
+                    explanation: "Sila Kedua (Kemanusiaan yang Adil dan Beradab) mengajarkan rasa kasih sayang, kepedulian, dan tolong-menolong sesama manusia."
+                },
+                {
+                    number: 3,
+                    question: "3. Bangga menggunakan batik dan sepatu buatan pengrajin lokal Indonesia merupakan wujud pengamalan Sila ke-...",
+                    options: ["Sila Kesatu", "Sila Kedua", "Sila Ketiga", "Sila Kelima"],
+                    correct: 2,
+                    explanation: "Cinta tanah air dan bangga pada produk dalam negeri merupakan cerminan Sila Ketiga (Persatuan Indonesia)."
+                },
+                {
+                    number: 4,
+                    question: "4. Dalam menentukan ketua kelas baru, murid-murid kelas 6 melakukan diskusi bersama dan pemungutan suara secara damai. Hal ini sesuai Sila ke-...",
+                    options: ["Sila Ke-2", "Sila Ke-3", "Sila Ke-4", "Sila Ke-1"],
+                    correct: 2,
+                    explanation: "Bermusyawarah untuk mufakat dalam mengambil keputusan bersama adalah contoh pengamalan Sila Ke-4."
+                },
+                {
+                    number: 5,
+                    question: "5. Manakah di bawah ini yang merupakan contoh pengamalan Sila Ke-5 (Keadilan Sosial bagi Seluruh Rakyat Indonesia)?",
+                    options: ["Membolos sekolah", "Gaya hidup boros", "Menghargai hasil karya orang lain dan suka menabung", "Memaksa teman"],
+                    correct: 2,
+                    explanation: "Sila Ke-5 mengajarkan hidup hemat, tidak boros, serta menghargai hak dan hasil karya orang lain."
+                },
+                {
+                    number: 6,
+                    question: "6. Di rumah, Edo selalu merapikan tempat tidur sendiri dan membantu ibu menyapu. Ini merupakan pengamalan Pancasila di lingkungan...",
+                    options: ["Sekolah", "Rumah / Keluarga", "Masyarakat", "Negara Luar"],
+                    correct: 1,
+                    explanation: "Membantu orang tua dan menjaga kebersihan kamar merupakan bentuk pengamalan Pancasila di lingkungan rumah."
+                },
+                {
+                    number: 7,
+                    question: "7. Menghormati teman yang sedang berpuasa atau beribadah agama lain di sekolah merupakan penerapan Sila Pertama di lingkungan...",
+                    options: ["Masyarakat", "Sekolah", "Pasar", "Tempat Bermain"],
+                    correct: 1,
+                    explanation: "Toleransi antarumat beragama di lingkungan kelas/sekolah adalah penerapan Sila Ke-1 di sekolah."
+                },
+                {
+                    number: 8,
+                    question: "8. Kegiatan warga desa yang bersama-sama membersihkan saluran air menjelang musim hujan dinamakan...",
+                    options: ["Kerja Bakti / Gotong Royong", "Musyawarah Pembagian Harta", "Ujian Sumatif", "Upacara Bendera"],
+                    correct: 0,
+                    explanation: "Kerja bakti pembersihan saluran air desa adalah contoh nyata pengamalan Pancasila Sila Ke-3 di lingkungan masyarakat."
+                },
+                {
+                    number: 9,
+                    question: "9. Simbol Sila Ke-2 Pancasila yang melambangkan hubungan antarmanusia yang saling membutuhkan dan bersatu adalah...",
+                    options: ["Bintang", "Rantai Emas", "Pohon Beringin", "Kepala Banteng"],
+                    correct: 1,
+                    explanation: "Rantai Emas melambangkan hubungan manusia yang saling terikat, adil, dan beradab."
+                },
+                {
+                    number: 10,
+                    question: "10. Mengapa kita tidak boleh memaksakan kehendak kepada teman saat berdiskusi kelompok?",
+                    options: ["Agar kita dianggap paling hebat", "Karena bertentangan dengan nilai musyawarah Sila Ke-4", "Supaya kuis cepat selesai", "Karena dipaksa guru"],
+                    correct: 1,
+                    explanation: "Sila Ke-4 mengajarkan kita untuk tidak memaksakan kehendak dan menghargai pendapat orang lain."
+                },
+                {
+                    number: 11,
+                    question: "11. Menjaga keseimbangan antara hak pribadi dan kewajiban saat menggunakan fasilitas umum merupakan contoh Sila ke-...",
+                    options: ["Sila Pertama", "Sila Kedua", "Sila Ketiga", "Sila Kelima"],
+                    correct: 3,
+                    explanation: "Sila Kelima menekankan keseimbangan hak dan kewajiban serta sikap adil kepada sesama."
+                },
+                {
+                    number: 12,
+                    question: "12. Pancasila berkedudukan sebagai Dasar Negara dan Ideologi Bangsa, artinya...",
+                    options: ["Hanya diingat saat upacara", "Menjadi landasan utama dalam mengatur kehidupan berbangsa dan bernegara", "Buku pegangan guru saja", "Aturan yang berlaku sementara"],
+                    correct: 1,
+                    explanation: "Dasar negara berarti menjadi fondasi utama seluruh hukum dan perilaku berbangsa di Indonesia."
+                }
+            ],
+            2: [ // BAB 2: SOAL 13 - 24
+                {
+                    number: 13,
+                    question: "13. Apa yang dimaksud dengan Pancasila sebagai 'Pandangan Hidup Bangsa'?",
+                    options: [
+                        "Pancasila sebagai buku harian siswa",
+                        "Pancasila menjadi pedoman, petunjuk, dan arah bersikap sehari-hari",
+                        "Pancasila digunakan untuk hiasan dinding",
+                        "Pancasila hanya wajib dibaca presiden"
+                    ],
+                    correct: 1,
+                    explanation: "Pandangan hidup berarti dijadikan petunjuk, arahan, dan pedoman dalam berpikir dan bertindak."
+                },
+                {
+                    number: 14,
+                    question: "14. Apa akibatnya jika suatu bangsa TIDAK memiliki pandangan hidup yang kuat?",
+                    options: [
+                        "Masyarakatnya makin kaya",
+                        "Bangsa menjadi terombang-ambing, mudah terpecah belah, dan kehilangan arah",
+                        "Sekolah menjadi gratis",
+                        "Negara tidak memerlukan aturan"
+                    ],
+                    correct: 1,
+                    explanation: "Tanpa pandangan hidup, suatu bangsa akan mudah goyah, terpecah belah, dan hilang pedoman."
+                },
+                {
+                    number: 15,
+                    question: "15. Doni melihat Budi hendak membuang sampah makanan ke sungai. Sikap Doni yang mencerminkan Pancasila adalah...",
+                    options: [
+                        "Membentak Budi di depan orang banyak",
+                        "Mengingatkan Budi dengan santun dan menunjukkan letak tempat sampah",
+                        "Pura-pura tidak melihat",
+                        "Ikut membuang sampah ke sungai"
+                    ],
+                    correct: 1,
+                    explanation: "Mengajak kebaikan harus dilakukan dengan santun, ramah, dan tidak mempermalukan teman."
+                },
+                {
+                    number: 16,
+                    question: "16. Mengajak teman mengamalkan Pancasila paling efektif dilakukan dengan cara...",
+                    options: [
+                        "Memberikan contoh keteladanan yang baik terlebih dahulu",
+                        "Memaksa dan mengancam",
+                        "Memberikan uang",
+                        "Pamer kebaikan di media sosial"
+                    ],
+                    correct: 0,
+                    explanation: "Keteladanan (memberi contoh nyata dalam perbuatan sehari-hari) adalah cara terbaik mengajak orang lain."
+                },
+                {
+                    number: 17,
+                    question: "17. Ketika ada dua teman berselisih paham saat menentukan permainan, tindakan Ksatria Pancasila adalah...",
+                    options: [
+                        "Membela teman yang paling kaya",
+                        "Melerai dan mengajak mereka bermusyawarah mencari jalan tengah",
+                        "Menambah suasana menjadi makin panas",
+                        "Tinggal pergi bermain sendiri"
+                    ],
+                    correct: 1,
+                    explanation: "Melerai perselisihan dan mengajak bermusyawarah merupakan wujud kebahagiaan bersama."
+                },
+                {
+                    number: 18,
+                    question: "18. Contoh mengamalkan Pancasila sebagai pandangan hidup saat berinteraksi di internet / media sosial adalah...",
+                    options: [
+                        "Menyebarkan berita bohong",
+                        "Berkomentar sopan, bijak, dan tidak mengejek orang lain",
+                        "Menggunakan akun palsu untuk merundung teman",
+                        "Membagikan foto orang lain tanpa izin"
+                    ],
+                    correct: 1,
+                    explanation: "Pancasila berlaku di manapun termasuk dunia digital, yaitu dengan bersikap santun dan menghargai."
+                },
+                {
+                    number: 19,
+                    question: "19. Apabila seluruh warga sekolah menerapkan nilai Pancasila, maka suasana sekolah akan terasa...",
+                    options: ["Menakutkan", "Aman, rukun, tenteram, dan menyenangkan", "Bising dan kacau", "Sepi tanpa murid"],
+                    correct: 1,
+                    explanation: "Penerapan nilai Pancasila menciptakan keharmonisan dan rasa nyaman bagi semua orang."
+                },
+                {
+                    number: 20,
+                    question: "20. Mengajak teman untuk menyisihkan sebagian uang saku guna membantu korban bencana alam sesuai dengan Sila...",
+                    options: ["Pertama", "Kedua", "Keempat", "Ketiga"],
+                    correct: 1,
+                    explanation: "Aksi kemanusiaan membantu korban bencana adalah contoh mengamalkan Sila Ke-2."
+                },
+                {
+                    number: 21,
+                    question: "21. Mengapa saat mengajak teman berbuat baik kita tidak boleh menggunakan kata-kata kasar?",
+                    options: [
+                        "Karena kata kasar dapat menyakiti hati dan membuat ajakan ditolak",
+                        "Karena disuruh orang tua",
+                        "Agar kita dinilai sombong",
+                        "Tidak ada alasannya"
+                    ],
+                    correct: 0,
+                    explanation: "Bahasa yang sopan dan santun membuat ajakan kebaikan diterima dengan senang hati."
+                },
+                {
+                    number: 22,
+                    question: "22. Rasa bangga menggunakan produk buatan dalam negeri (Indonesia) merupakan pandangan hidup pengamalan Sila ke-...",
+                    options: ["Sila 1", "Sila 2", "Sila 3", "Sila 5"],
+                    correct: 2,
+                    explanation: "Bangga pada produk bangsa sendiri wujud cinta tanah air dan persatuan Indonesia (Sila 3)."
+                },
+                {
+                    number: 23,
+                    question: "23. Sikap terbaik saat pendapat kita tidak terpilih dalam diskusi kelompok adalah...",
+                    options: [
+                        "Marah dan keluar dari kelompok",
+                        "Menerima keputusan musyawarah dengan lapang dada dan bertanggung jawab",
+                        "Merusak tugas kelompok",
+                        "Mengejek pendapat yang terpilih"
+                    ],
+                    correct: 1,
+                    explanation: "Menerima hasil keputusan musyawarah secara legowo adalah ciri ksatria pengamal Pancasila."
+                },
+                {
+                    number: 24,
+                    question: "24. Kebahagiaan bersama dalam masyarakat dapat terwujud jika kita mengutamakan kepentingan...",
+                    options: ["Pribadi / Diri sendiri", "Bersama / Umum", "Golongan kaya saja", "Kelompok tertentu"],
+                    correct: 1,
+                    explanation: "Kebahagiaan bersama hanya tercipta jika kepentingan umum diutamakan di atas kepentingan pribadi."
+                }
+            ],
+            3: [ // BAB 3: SOAL 25 - 40
+                {
+                    number: 25,
+                    question: "25. Apa yang dimaksud dengan NORMA dalam kehidupan masyarakat?",
+                    options: [
+                        "Aturan atau kaidah yang mengatur tingkah laku manusia dalam masyarakat",
+                        "Nasihat guru saat mengajar matematika",
+                        "Daftar nilai ujian sekolah",
+                        "Hukuman pidana saja"
+                    ],
+                    correct: 0,
+                    explanation: "Norma adalah pedoman, kaidah, atau aturan tertulis/tidak tertulis yang mengatur tingkah laku masyarakat."
+                },
+                {
+                    number: 26,
+                    question: "26. Norma yang bersumber dari wahyu Tuhan Yang Maha Esa disebut...",
+                    options: ["Norma Kesopanan", "Norma Agama", "Norma Hukum", "Norma Kesusilaan"],
+                    correct: 1,
+                    explanation: "Norma Agama bersumber dari Kitab Suci / Wahyu Tuhan YME."
+                },
+                {
+                    number: 27,
+                    question: "27. Apabila seseorang melanggar Norma Agama, sanksi utama yang diterima adalah...",
+                    options: ["Denda uang tunai", "Penjara negara", "Dosa dan sanksi di akhirat kelak", "Disita barangnya"],
+                    correct: 2,
+                    explanation: "Sanksi pelanggaran norma agama bersifat spiritual (dosa dan pertanggungjawaban kepada Tuhan YME)."
+                },
+                {
+                    number: 28,
+                    question: "28. Norma Kesusilaan bersumber dari...",
+                    options: ["Lembaga Kepolisian", "Hati nurani dan suara hati manusia", "Peraturan walikota", "Adat istiadat"],
+                    correct: 1,
+                    explanation: "Norma Kesusilaan timbul dari bisikan hati nurani manusia mengenai kebaikan dan kejujuran."
+                },
+                {
+                    number: 29,
+                    question: "29. Rian merasa sangat bersalah dan gelisah di dalam hatinya setelah menyontek saat ujian. Gelisah ini sanksi dari melanggar...",
+                    options: ["Norma Hukum", "Norma Kesusilaan", "Norma Adat", "Norma Lalu Lintas"],
+                    correct: 1,
+                    explanation: "Sanksi norma kesusilaan berasal dari dalam diri sendiri berupa rasa penyesalan, malu, dan bersalah."
+                },
+                {
+                    number: 30,
+                    question: "30. Berbicara santun kepada orang tua dan mencium tangan saat berpamitan merupakan contoh penerapan...",
+                    options: ["Norma Kesopanan", "Norma Hukum", "Norma Perdagangan", "Norma Agama"],
+                    correct: 0,
+                    explanation: "Norma Kesopanan berhubungan dengan tata krama, sopan santun, dan kebiasaan adat masyarakat."
+                },
+                {
+                    number: 31,
+                    question: "31. Sanksi bagi seseorang yang melanggar Norma Kesopanan di lingkungan masyarakat adalah...",
+                    options: ["Hukuman mati", "Ditegur, dicemooh, atau dikucilkan dalam pergaulan", "Bayar pajak ganda", "Masuk penjara"],
+                    correct: 1,
+                    explanation: "Pelanggar norma kesopanan akan mendapat sanksi sosial berupa teguran atau cemoohan."
+                },
+                {
+                    number: 32,
+                    question: "32. Norma yang dibuat oleh lembaga resmi negara, bersifat tegas, memaksa, dan memiliki sanksi nyata adalah...",
+                    options: ["Norma Agama", "Norma Kesusilaan", "Norma Hukum", "Norma Kesopanan"],
+                    correct: 2,
+                    explanation: "Norma Hukum diciptakan oleh pemerintah/negara dengan hukuman tegas (denda, kurungan, penjara)."
+                },
+                {
+                    number: 33,
+                    question: "33. Pengendara sepeda motor yang tidak memakai helm akan ditilang oleh polisi. Ini merupakan bukti tegasnya...",
+                    options: ["Norma Adat", "Norma Hukum", "Norma Kesusilaan", "Norma Kebersihan"],
+                    correct: 1,
+                    explanation: "Penilangan lalu lintas adalah bentuk penegakan Norma Hukum oleh aparat negara."
+                },
+                {
+                    number: 34,
+                    question: "34. Apakah yang dimaksud dengan HAK anak?",
+                    options: [
+                        "Sesuatu yang harus dikerjakan dengan paksa",
+                        "Sesuatu yang mutlak harus diterima dan didapatkan oleh anak",
+                        "Hadiah jika menang lomba",
+                        "Hukuman dari guru"
+                    ],
+                    correct: 1,
+                    explanation: "Hak adalah segala sesuatu yang menjadi milik dan berhak diterima oleh setiap anak sejak lahir."
+                },
+                {
+                    number: 35,
+                    question: "35. Berikut yang merupakan HAK anak di lingkungan RUMAH adalah...",
+                    options: [
+                        "Mendapatkan kasih sayang, tempat tinggal layak, dan makanan bergizi",
+                        "Membersihkan saluran air desa",
+                        "Mencari nafkah keluarga",
+                        "Membayar listrik rumah"
+                    ],
+                    correct: 0,
+                    explanation: "Mendapat perlindungan, kasih sayang, dan gizi cukup adalah Hak Anak di rumah."
+                },
+                {
+                    number: 36,
+                    question: "36. Mendapatkan bimbingan ilmu dari guru dan menggunakan fasilitas perpustakaan merupakan HAK anak di...",
+                    options: ["Pasar", "Rumah", "Sekolah", "Masyarakat"],
+                    correct: 2,
+                    explanation: "Mendapat pelajaran dan menggunakan fasilitas belajar adalah Hak Anak di sekolah."
+                },
+                {
+                    number: 37,
+                    question: "37. Apakah yang dimaksud dengan KEWAJIBAN anak?",
+                    options: [
+                        "Sesuatu yang harus dilaksanakan dengan penuh rasa tanggung jawab",
+                        "Sesuatu yang dituntut tanpa bekerja",
+                        "Menerima uang saku",
+                        "Bermain game seharian"
+                    ],
+                    correct: 0,
+                    explanation: "Kewajiban adalah segala tugas atau hal yang WAJIB dikerjakan secara bertanggung jawab."
+                },
+                {
+                    number: 38,
+                    question: "38. Manakah yang merupakan KEWAJIBAN anak di sekolah?",
+                    options: [
+                        "Mendapatkan nilai bagus tanpa belajar",
+                        "Mematuhi tata tertib sekolah, menghormati guru, dan ikut piket kelas",
+                        "Mengatur jam mengajar guru",
+                        "Menjual makanan di kantin"
+                    ],
+                    correct: 1,
+                    explanation: "Piket kelas, taat aturan, dan hormat guru adalah Kewajiban Siswa di sekolah."
+                },
+                {
+                    number: 39,
+                    question: "39. Bagaimana hubungan yang BENAR antara Hak dan Kewajiban anak?",
+                    options: [
+                        "Menuntut Hak sebanyak-banyaknya tanpa Kewajiban",
+                        "Melaksanakan Kewajiban terlebih dahulu secara seimbang baru menuntut Hak",
+                        "Mengabaikan kedua-duanya",
+                        "Hanya menjalankan kewajiban saat diawasi"
+                    ],
+                    correct: 1,
+                    explanation: "Kewajiban harus didahulukan dan dilaksanakan seimbang sebelum meminta Hak."
+                },
+                {
+                    number: 40,
+                    question: "40. Akibat jika seorang anak hanya ingin menuntut HAK tetapi menolak melakukan KEWAJIBAN adalah...",
+                    options: [
+                        "Hidupnya makin sukses",
+                        "Menciptakan ketidakadilan, kekacauan, dan merugikan orang lain",
+                        "Disukai oleh semua teman",
+                        "Mendapatkan piagam pahlawan"
+                    ],
+                    correct: 1,
+                    explanation: "Ketidakseimbangan Hak dan Kewajiban memicu konflik dan ketidakadilan di masyarakat."
+                }
+            ],
+            4: [ // FINAL BOSS / ASESMEN SUMATIF GABUNGAN: SOAL 41 - 50
+                {
+                    number: 41,
+                    question: "41. [FINAL BOSS 1] Ketika mendengar panggilan ibadah saat bermain bersama teman, tindakan yang mencerminkan Sila Ke-1 dan Norma Agama adalah...",
+                    options: [
+                        "Pura-pura tidak mendengar dan terus berteriak",
+                        "Menghentikan permainan sejenak dan memberi kesempatan beribadah",
+                        "Melarang teman pergi beribadah",
+                        "Ajak teman bermain lebih keras"
+                    ],
+                    correct: 1,
+                    explanation: "Menghormati ibadah wujud ketaatan Norma Agama sekaligus keharmonisan Sila Ke-1."
+                },
+                {
+                    number: 42,
+                    question: "42. [FINAL BOSS 2] Andi menemukan dompet jatuh di halaman sekolah. Ia menyerahkannya ke guru piket. Tindakan Andi memadukan...",
+                    options: [
+                        "Sila Ke-2 Pancasila & Norma Kesusilaan (Jujur)",
+                        "Norma Hukum & Pelanggaran Hak",
+                        "Gaya hidup konsumtif",
+                        "Sila Ke-1 & Memboroskan uang"
+                    ],
+                    correct: 0,
+                    explanation: "Kejujuran bersumber dari hati nurani (Norma Kesusilaan) dan mencerminkan akhlak beradab (Sila Ke-2)."
+                },
+                {
+                    number: 43,
+                    question: "43. [FINAL BOSS 3] Dalam musyawarah pembagian tugas piket kebersihan kelas, Dino mengusulkan ide secara santun. Hal ini memadukan...",
+                    options: [
+                        "Norma Kesopanan & Sila Ke-4 Pancasila",
+                        "Norma Hukum & Denda",
+                        "Sila Ke-1 & Doa",
+                        "Kewajiban Orang Tua"
+                    ],
+                    correct: 0,
+                    explanation: "Bermusyawarah (Sila 4) dengan tutur kata santun (Norma Kesopanan) menciptakan keputusan yang baik."
+                },
+                {
+                    number: 44,
+                    question: "44. [FINAL BOSS 4] Ani ingin menggunakan taman bermain desa (Hak), namun taman kotor oleh sampah plastik. Langkah seimbang Ani adalah...",
+                    options: [
+                        "Marah-marah dan memaki kepala desa",
+                        "Membuang sampah tambahan ke taman",
+                        "Mengajak teman memungut sampah (Kewajiban) lalu bermain bersama dengan nyaman (Hak)",
+                        "Pulang dan menangis"
+                    ],
+                    correct: 2,
+                    explanation: "Melaksanakan kewajiban menjaga kebersihan fasilitas umum dulu baru menikmati hak bermain."
+                },
+                {
+                    number: 45,
+                    question: "45. [FINAL BOSS 5] Ketika melihat pengendara berjalan lawan arah di jalan raya tanpa helm, norma apakah yang dilanggar secara langsung?",
+                    options: ["Norma Agama", "Norma Hukum Lalu Lintas", "Norma Kesusilaan saja", "Norma Adat Daerah"],
+                    correct: 1,
+                    explanation: "Melawan arah dan tidak memakai helm merupakan pelanggaran langsung Norma Hukum Lalu Lintas."
+                },
+                {
+                    number: 46,
+                    question: "46. [FINAL BOSS 6] Mengapa siswa wajib mendengarkan ketika guru sedang menjelaskan pelajaran di depan kelas?",
+                    options: [
+                        "Karena itu bentuk Norma Kesopanan & Kewajiban Siswa di sekolah",
+                        "Agar guru tidak memberi hadiah",
+                        "Supaya diperbolehkan tidur",
+                        "Hanya aturan formalitas"
+                    ],
+                    correct: 0,
+                    explanation: "Mendengarkan guru wujud penghormatan (Norma Kesopanan) serta Kewajiban Siswa untuk menuntut ilmu."
+                },
+                {
+                    number: 47,
+                    question: "47. [FINAL BOSS 7] Pak Budi membagi sembako bantuan bencana secara merata tanpa membedakan suku dan agama warga. Sikap Pak Budi mencerminkan...",
+                    options: [
+                        "Sila Ke-5 Pancasila (Keadilan Sosial)",
+                        "Sikap pilih kasih",
+                        "Pelanggaran Norma Agama",
+                        "Hak pribadi Pak Budi"
+                    ],
+                    correct: 0,
+                    explanation: "Sikap adil tidak membeda-bedakan suku/agama adalah wujud Sila Ke-5 Pancasila."
+                },
+                {
+                    number: 48,
+                    question: "48. [FINAL BOSS 8] Seorang siswa menuntut fasilitas komputer lengkap dari sekolah, tetapi ia merusak keyboard saat bermain game. Tindakan siswa tersebut...",
+                    options: [
+                        "Sangat terpuji",
+                        "Tidak bertanggung jawab karena hanya menuntut Hak tanpa menjalankan Kewajiban merawat fasilitas",
+                        "Sesuai Pancasila Sila Ke-3",
+                        "Contoh norma hukum"
+                    ],
+                    correct: 1,
+                    explanation: "Menuntut hak tetapi merusak fasilitas wujud pelanggaran kewajiban dan ketidakbertanggungjawaban."
+                },
+                {
+                    number: 49,
+                    question: "49. [FINAL BOSS 9] Apa perbedaan utama antara sanksi Norma Kesopanan dengan sanksi Norma Hukum?",
+                    options: [
+                        "Norma Kesopanan sanksinya denda uang, Norma Hukum sanksinya dosa",
+                        "Norma Kesopanan sanksinya ditegur/diejek masyarakat, Norma Hukum sanksinya tegas oleh aparat (denda/penjara)",
+                        "Tidak ada perbedaannya",
+                        "Norma Hukum tidak memiliki sanksi"
+                    ],
+                    correct: 1,
+                    explanation: "Norma Hukum bersifat formal dan mengikat dari negara, sedangkan Norma Kesopanan berasal dari pergaulan masyarakat."
+                },
+                {
+                    number: 50,
+                    question: "50. [FINAL BOSS 10] Gelar utama 'Ksatria Pancasila Utama' berhak diraih oleh siswa yang...",
+                    options: [
+                        "Hanya hafal teks Pancasila tanpa mengamalkannya",
+                        "Memahami nilai Pancasila, menaati norma, serta seimbang menjalankan Hak dan Kewajiban dalam hidup sehari-hari",
+                        "Sering membolos sekolah",
+                        "Suka memusuhi teman"
+                    ],
+                    correct: 1,
+                    explanation: "Ksatria sejati adalah yang memadukan ilmu pengetahuan dengan perbuatan nyata dalam mengamalkan Pancasila."
+                }
+            ]
+        };
+
+        function showScreen(screenId) {
+            playSound('click');
+            const screens = ['welcome-screen', 'map-screen', 'materi-screen', 'game-screen', 'result-screen'];
+            screens.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectAvatar(avatarKey, btnElement) {
+            playSound('click');
+            player.avatar = avatarKey;
+            document.querySelectorAll('.avatar-btn').forEach(btn => {
+                btn.classList.remove('border-amber-400');
+                btn.classList.add('border-transparent');
+            });
+            btnElement.classList.remove('border-transparent');
+            btnElement.classList.add('border-amber-400');
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('player-name-input').value.trim();
+            const schoolInput = document.getElementById('school-name-input').value.trim();
+
+            if (nameInput.length > 0) {
+                player.name = nameInput;
+            }
+            if (schoolInput.length > 0) {
+                player.school = schoolInput;
+            }
+
+            document.getElementById('welcome-player-text').innerText = `Selamat Datang, ${player.name}!`;
+            document.getElementById('school-player-text').innerText = player.school;
+            document.getElementById('cert-player-name').innerText = player.name;
+            document.getElementById('cert-school-name').innerText = player.school;
+
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('cert-date').innerText = dateStr;
+
+            updateUI();
+            showScreen('map-screen');
+        }
+
+        function updateUI() {
+            document.getElementById('player-level').innerText = player.level;
+            document.getElementById('player-stars').innerText = player.stars;
+            document.getElementById('xp-text').innerText = `${player.xp}/${player.maxXp}`;
+            const xpPercent = Math.min(100, (player.xp / player.maxXp) * 100);
+            document.getElementById('xp-bar').style.width = `${xpPercent}%`;
+
+            document.getElementById('star-bab1').innerText = `${player.bab1Stars}/3 ⭐`;
+            document.getElementById('star-bab2').innerText = `${player.bab2Stars}/3 ⭐`;
+            document.getElementById('star-bab3').innerText = `${player.bab3Stars}/3 ⭐`;
+
+            let title = "Ksatria Pemula";
+            if (player.stars >= 8) title = "Pahlawan Utama Nusantara";
+            else if (player.stars >= 5) title = "Penjaga Moral Pancasila";
+            else if (player.stars >= 2) title = "Ksatria Bintang Teladan";
+            
+            document.getElementById('cert-hero-title').innerText = title;
+            document.getElementById('cert-total-stars').innerText = `${player.stars} ⭐`;
+        }
+
+        function startChapter(babNum, mode) {
+            playSound('click');
+            activeChapter = babNum;
+
+            if (mode === 'materi') {
+                const mat = MATERIALS[babNum];
+                document.getElementById('materi-chapter-tag').innerText = `BAB ${babNum}`;
+                document.getElementById('materi-title').innerText = mat.title;
+                document.getElementById('materi-subtitle').innerText = mat.subtitle;
+                document.getElementById('materi-body').innerHTML = mat.content;
+                
+                const btnQuiz = document.getElementById('btn-materi-to-quiz');
+                btnQuiz.onclick = function() { startChapter(babNum, 'game'); };
+                
+                showScreen('materi-screen');
+            } else {
+                currentQuizData = QUESTIONS[babNum];
+                currentQuestionIdx = 0;
+                currentScore = 0;
+                correctAnswersCount = 0;
+                
+                document.getElementById('total-questions-num').innerText = currentQuizData.length;
+                loadQuestion();
+                showScreen('game-screen');
+            }
+        }
+
+        function startFinalBoss() {
+            playSound('click');
+            activeChapter = 4;
+            currentQuizData = QUESTIONS[4];
+            currentQuestionIdx = 0;
+            currentScore = 0;
+            correctAnswersCount = 0;
+
+            document.getElementById('total-questions-num').innerText = currentQuizData.length;
+            loadQuestion();
+            showScreen('game-screen');
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            const q = currentQuizData[currentQuestionIdx];
+
+            document.getElementById('current-question-num').innerText = currentQuestionIdx + 1;
+            const progress = ((currentQuestionIdx + 1) / currentQuizData.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = `${progress}%`;
+            document.getElementById('quiz-score').innerText = `Skor: ${currentScore}`;
+
+            document.getElementById('question-category-badge').innerText = activeChapter === 4 ? `FINAL BOSS (SOAL ${q.number})` : `SOAL ${q.number}`;
+            document.getElementById('question-sila-badge').innerText = activeChapter === 4 ? "ASESMEN SUMATIF GABUNGAN" : `BAB ${activeChapter}`;
+            document.getElementById('question-text').innerText = q.question;
+
+            document.getElementById('explanation-box').classList.add('hidden');
+            document.getElementById('correct-answer-banner').classList.add('hidden');
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            const optionLabels = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full p-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 flex items-center space-x-3 text-left transition text-xs sm:text-sm text-slate-200`;
+                btn.onclick = () => selectOption(idx, btn);
+
+                btn.innerHTML = `
+                    <span class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-600 flex items-center justify-center font-bold text-amber-300 text-xs shrink-0">${optionLabels[idx]}</span>
+                    <span class="flex-1">${optText}</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            const btnNext = document.getElementById('btn-next-question');
+            btnNext.disabled = true;
+            btnNext.className = "btn-game px-6 py-3 rounded-xl bg-slate-800 text-slate-500 font-extrabold text-xs flex items-center space-x-2 border border-slate-700 cursor-not-allowed";
+        }
+
+        function selectOption(selectedIdx, btnElement) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const q = currentQuizData[currentQuestionIdx];
+            const allOptionBtns = document.querySelectorAll('.option-btn');
+            const optionLabels = ['A', 'B', 'C', 'D'];
+
+            allOptionBtns.forEach(b => b.classList.add('pointer-events-none'));
+
+            if (selectedIdx === q.correct) {
+                playSound('correct');
+                btnElement.classList.remove('bg-slate-800/90', 'border-slate-700');
+                btnElement.classList.add('bg-emerald-950/90', 'border-emerald-500', 'text-emerald-200');
+                btnElement.querySelector('span').classList.add('bg-emerald-600', 'text-white');
+                
+                currentScore += 10;
+                correctAnswersCount++;
+                document.getElementById('quiz-score').innerText = `Skor: ${currentScore}`;
+
+                document.getElementById('explanation-title').innerText = "JAWABAN KAMU BENAR! (+10 SKOR)";
+                document.getElementById('explanation-title').className = "font-bold text-xs uppercase tracking-wider text-emerald-400";
+                document.getElementById('explanation-icon').className = "fa-solid fa-circle-check text-emerald-400";
+            } else {
+                playSound('wrong');
+                // Highlight incorrect user choice
+                btnElement.classList.remove('bg-slate-800/90', 'border-slate-700');
+                btnElement.classList.add('bg-rose-950/90', 'border-rose-500', 'text-rose-200');
+                btnElement.querySelector('span').classList.add('bg-rose-600', 'text-white');
+
+                // Explicitly highlight correct answer
+                const correctBtn = allOptionBtns[q.correct];
+                correctBtn.classList.remove('bg-slate-800/90', 'border-slate-700');
+                correctBtn.classList.add('bg-emerald-950/90', 'border-emerald-500', 'text-emerald-200');
+                correctBtn.querySelector('span').classList.add('bg-emerald-600', 'text-white');
+
+                document.getElementById('explanation-title').innerText = "JAWABAN KURANG TEPAT";
+                document.getElementById('explanation-title').className = "font-bold text-xs uppercase tracking-wider text-rose-400";
+                document.getElementById('explanation-icon').className = "fa-solid fa-circle-xmark text-rose-400";
+
+                // Show correct answer banner
+                const banner = document.getElementById('correct-answer-banner');
+                document.getElementById('correct-answer-text').innerText = `Jawaban Benar: (${optionLabels[q.correct]}) ${q.options[q.correct]}`;
+                banner.classList.remove('hidden');
+            }
+
+            document.getElementById('explanation-text').innerText = q.explanation;
+            document.getElementById('explanation-box').classList.remove('hidden');
+
+            const btnNext = document.getElementById('btn-next-question');
+            btnNext.disabled = false;
+            btnNext.className = "btn-game px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs flex items-center space-x-2 shadow-lg cursor-pointer";
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            if (currentQuestionIdx < currentQuizData.length - 1) {
+                currentQuestionIdx++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            playSound('fanfare');
+
+            let starsEarned = 1;
+            const pct = (correctAnswersCount / currentQuizData.length) * 100;
+            if (pct >= 85) starsEarned = 3;
+            else if (pct >= 60) starsEarned = 2;
+
+            player.stars += starsEarned;
+            player.xp += currentScore;
+
+            if (activeChapter === 1) player.bab1Stars = Math.max(player.bab1Stars, starsEarned);
+            if (activeChapter === 2) player.bab2Stars = Math.max(player.bab2Stars, starsEarned);
+            if (activeChapter === 3) player.bab3Stars = Math.max(player.bab3Stars, starsEarned);
+
+            while (player.xp >= player.maxXp) {
+                player.xp -= player.maxXp;
+                player.level++;
+                player.maxXp += 50;
+            }
+
+            updateUI();
+
+            document.getElementById('result-final-score').innerText = currentScore;
+            document.getElementById('result-correct-count').innerText = `${correctAnswersCount}/${currentQuizData.length}`;
+            document.getElementById('result-stars-earned').innerText = `+${starsEarned} ⭐`;
+
+            showScreen('result-screen');
+        }
+
+        function showRangkumanModal() {
+            playSound('click');
+            switchRangkumanTab('bab1');
+            document.getElementById('modal-rangkuman').classList.remove('hidden');
+        }
+
+        function switchRangkumanTab(babKey) {
+            playSound('click');
+            const babNum = babKey === 'bab1' ? 1 : babKey === 'bab2' ? 2 : 3;
+            
+            ['bab1', 'bab2', 'bab3'].forEach(k => {
+                const btn = document.getElementById(`tab-btn-${k}`);
+                if (k === babKey) {
+                    btn.className = "flex-1 py-3 border-b-2 border-amber-400 text-amber-300 bg-slate-800/50";
+                } else {
+                    btn.className = "flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200";
+                }
+            });
+
+            document.getElementById('rangkuman-content-body').innerHTML = MATERIALS[babNum].content;
+        }
+
+        function showCertificateModal() {
+            playSound('click');
+            updateUI();
+            document.getElementById('modal-certificate').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            playSound('click');
+            document.getElementById(modalId).classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
